@@ -9,6 +9,33 @@ class Tile:
         if block_sight is None: block_sight = blocked_status
         self.block_sight = block_sight
 
+    def blocked(x, y, game_map, objects):
+        if game_map[x][y].blocked:
+            return True
+        for blinkybill in objects:
+            if blinkybill.blocks and blinkybill.x == x and blinkybill.y == y:
+                return True
+        return False
+
+    def populate_room(room, game_map, objects):
+        import libtcodpy as libtcod
+        from classes import Object as Object
+        MAX_ROOM_MONSTERS = 2
+        num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
+
+        for i in range(num_monsters):
+            x = libtcod.random_get_int(0, room.x1, room.x2)
+            y = libtcod.random_get_int(0, room.y1, room.y2)
+            
+            if not Tile.blocked(x, y, game_map, objects):
+
+                if libtcod.random_get_int(0,0,100) < 80:
+                    monster = Object.Monster(x, y, '8', 'Orc', libtcod.desaturated_green, True)
+                else:
+                    monster = Object.Monster(x, y, 'x', 'Troll', libtcod.desaturated_fuchsia, True)
+                
+                objects.append(monster)
+
     def make_map(MAP_HEIGHT,MAP_WIDTH,player,objects):
         from classes import Room as Room
         from classes import Object as Object
@@ -72,7 +99,7 @@ class Tile:
                         Room.Room.create_v_tunnel(prev_y, new_y, prev_x,game_map)
                         Room.Room.create_h_tunnel(prev_x, new_x, new_y,game_map)
 
-                Object.Monster.populate_room(new_room,objects)
+                Tile.populate_room(new_room, game_map, objects)
                 #finally, append the new room to the list
                 rooms.append(new_room)
                 num_rooms += 1

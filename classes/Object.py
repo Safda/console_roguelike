@@ -10,18 +10,30 @@ class Object:
         self.colour = colour
         self.blocks = blocks
 
-    def blocked(x, y, game_map, objects):
-        if game_map[x][y].blocked:
-            return True
-        for object in objects:
-            if object.blocked and object.x == x and object.y == y:
-                return True
-        return False
-
     def move(self, dx, dy, game_map, objects):
-        if not Object.blocked(self.x + dx, self.y + dy, game_map, objects):
+        from classes import Tile as Tile
+        
+        if not Tile.Tile.blocked(self.x + dx, self.y + dy, game_map, objects):
             self.x += dx
             self.y += dy
+
+    def move_attack(self, dx, dy, game_map, objects):
+        from classes import Tile as Tile
+        print('x{} y{} dx{} dy{}'.format(self.x, self.y, dx, dy))
+        x = self.x + dx
+        y = self.y + dy
+
+        target = None
+        for object in objects:
+            if object.x == x and object.y == y:
+                target = object
+                break
+        if target is not None:
+            print('Attacking {} {}'.format(object.name, objects.index(object)))
+        else:
+            self.move(dx, dy, game_map, objects)
+            fov_recompute = True
+            return fov_recompute
 
     def draw(self, con, fov_map):
         con = con
@@ -34,47 +46,4 @@ class Object:
         libtcod.console_put_char(con, int(self.x), int(self.y), ' ', libtcod.BKGND_NONE)
 
 class Monster(Object):
-    global libtcod
-    import libtcodpy as libtcod
-
-    def __init__(self):
-        super(Monster, self).__init__()
-
-    def populate_room(room,objects):
-        MAX_ROOM_MONSTERS = 2
-        num_monsters = libtcod.random_get_int(0, 0, MAX_ROOM_MONSTERS)
-
-        for i in range(num_monsters):
-            x = libtcod.random_get_int(0, room.x1, room.x2)
-            y = libtcod.random_get_int(0, room.y1, room.y2)
-            
-            if not blocked(x, y):
-
-                if libtcod.random_get_int(0,0,100) < 80:
-                    monster = Orc(x, y, '8', 'Orc', libtcod.desaturated_green, True)
-                else:
-                    monster = Troll(x, y, 'x', 'Troll', libtcod.desaturated_fuchsia, True)
-                
-                objects.append(monster)
-
-class Orc(Monster):
-    type = 'Orc'
-
-    def __init__(self, x, y, char, name, colour, blocks=False):
-        self.name = type
-        self.x = x
-        self.y = y
-        self.char = char
-        self.colour = colour
-        self.blocks = blocks
-
-class Troll(Monster):
-    type = 'Troll'
-
-    def __init__(self, x, y, char, name, colour, blocks=False):
-        self.name = type
-        self.x = x
-        self.y = y
-        self.char = char
-        self.colour = colour
-        self.blocks = blocks
+    pass
